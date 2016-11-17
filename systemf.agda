@@ -41,9 +41,12 @@ data [_:=_]_≡_ : Variable → Type → Type → Type → Set where
   subst-all : ∀ {x y : Variable} {s t₁ t₂ u₁ u₂ : Type} →
     [ x := s ] t₁ ≡ u₁ → [ x := s ] t₂ ≡ u₂
       → [ x := s ] (∀T y <: t₁ , t₂) ≡ (∀T y <: u₁ , u₂)
-  subst-abs : ∀ {x y : Variable} {s t u : Type} {k : Kind} →
-    [ x := s ] t ≡ u
+  subst-abs1 : ∀ {x y : Variable} {s t u : Type} {k : Kind} →
+    x ≢ y → [ x := s ] t ≡ u 
       → [ x := s ] (λT y :: k , t) ≡ (λT y :: k , u)
+  subst-abs2 : ∀ {x y : Variable} {s t u : Type} {k : Kind} →
+    x ≡ y
+      → [ x := s ] (λT y :: k , t) ≡ (λT y :: k , t)
   subst-app : ∀ {x : Variable} {s t₁ t₂ u₁ u₂ : Type} →
      [ x := s ] t₁ ≡ u₁ → [ x := s ] t₂ ≡ u₂
        → [ x := s ] (t₁ ← t₂) ≡ (u₁ ← u₂)
@@ -147,6 +150,7 @@ A = v 0
 B = v 1
 F = v 2
 X = v 3
+Y = v 4
 Id = λT X :: * , var X
 Γ = empty , B <: top , A <: var B , F <: Id
 
@@ -180,5 +184,24 @@ p1 = s-trans a<b b<idb
     a<b        : Γ ⊢ var A <: var B
     a<b = s-tvar a<b∈Γ
 
-p2 :  Γ ⊢ Id ← A <: B
-p2 = {!!}
+p2 :  Γ ⊢ Id ← var A <: var B
+p2 = s-trans id[a]<a a<b
+  where
+    id[a]<a    : Γ ⊢ (Id ← var A) <: var A
+    id[a]<a = s-eq (idxkind akind) akind (q-appabs (subst-var refl))
+    a<b        : Γ ⊢ var A <: var B
+    a<b = s-tvar a<b∈Γ
+
+p3 : Γ ⊢ λT X :: * , var X <: λT X :: * , top
+p3 = s-abs x<top
+  where
+    x<top      : Γ , X <: top ⊢ var X <: top
+    x<top = s-tvar in1
+
+p5 : Γ ⊢ λT X :: * , ∀T Y <: var X , var Y <: λT X :: * , ∀T Y <: var X , var X
+p5 = s-abs inner
+  where
+    x* : (Γ , X <: top) ⊢ var X :: *
+    x* = k-tvar in1 k-top
+    inner      : (Γ , X <: top) ⊢ (∀T Y <: var X , var Y) <: (∀T Y <: var X , var X)
+    inner = s-all x* (s-tvar in1)
