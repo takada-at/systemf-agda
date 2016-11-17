@@ -167,13 +167,15 @@ idxkind = λ x → k-app (k-abs (k-tvar in1 k-top)) x
 
 
 p1 : Γ ⊢ var A <: Id ← (var B)
-p1 = {!!}
+p1 = s-trans a<b b<idb
   where
     subst      : [ X := (var B) ] var X ≡ var B
     subst = subst-var refl
     id[b]≡b    : (Id ← (var B)) ≡' var B
     id[b]≡b = q-appabs subst
-    rev        : var B ≡' (Id ← (var B))
-    rev = q-symm id[b]≡b
+    b≡idb      : var B ≡' (Id ← (var B))
+    b≡idb = q-symm id[b]≡b
     b<idb      : Γ ⊢ var B <: Id ← (var B)
-    b<idb = {!!}
+    b<idb = s-eq bkind (idxkind bkind) b≡idb
+    a<b        : Γ ⊢ var A <: var B
+    a<b = s-tvar a<b∈Γ
