@@ -162,9 +162,8 @@ akind      : Γ ⊢ var A :: *
 akind = k-tvar a<b∈Γ bkind
 idkind     : Γ ⊢ Id :: (* ⇒ *)
 idkind = k-abs (k-tvar in1 k-top)
-idxkind    : ∀ {t : Type} →
-  Γ ⊢ Id ← t :: *
-idxkind = {!!}
+idxkind    : ∀ {t : Type} → Γ ⊢ t :: * → Γ ⊢ Id ← t :: *
+idxkind = λ x → k-app (k-abs (k-tvar in1 k-top)) x
 
 
 p1 : Γ ⊢ var A <: Id ← (var B)
