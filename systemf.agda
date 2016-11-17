@@ -179,3 +179,6 @@ p1 = s-trans a<b b<idb
     b<idb = s-eq bkind (idxkind bkind) b≡idb
     a<b        : Γ ⊢ var A <: var B
     a<b = s-tvar a<b∈Γ
+
+p2 :  Γ ⊢ Id ← A <: B
+p2 = {!!}
